@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:to_dos/database/firebase_service.dart';
 import 'package:to_dos/home/widget/appbar.dart';
 import 'package:to_dos/home/widget/drawer_content.dart';
 import 'package:to_dos/home/widget/emptylist.dart';
@@ -20,27 +21,26 @@ class FinalView extends StatefulWidget {
 class _FinalViewState extends State<FinalView> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-
+  final FirebaseService _firebaseService = FirebaseService();
   List<Map<String, dynamic>> allData = [];
   bool isLoading = true;
-  bool isCheckboxChecked = false;
-  String leaveFromDate = '';
 
   /// Refreshing Data After every User action
   void refreshData() async {
-    final data = await SQLHelper.getItems();
+    final data = await SQLHelper.getItems();//local database function
+    final online_data = await _firebaseService.getTasks();
     setState(() {
-      allData = data;
+      allData = online_data;
       isLoading = false;
     });
   }
 
   /// Show Form for adding a new task / update task
-  void showForm(int? id) async {
-    if (id != null) {
+  void showForm(String? documentId) async {
+    if (documentId != null) {
       // id != null -> update an existing item
       final existingJournal =
-      allData.firstWhere((element) => element['id'] == id);
+      allData.firstWhere((element) => element['documentId'] == documentId);
       _titleController.text = existingJournal['title'];
       _descriptionController.text = existingJournal['description'];
 
@@ -79,7 +79,7 @@ class _FinalViewState extends State<FinalView> {
                     height: 70,
                   ),
                   Text(
-                    id == null ? 'Add New One!' : 'Update Current',
+                    documentId == null ? 'Add New One!' : 'Update Current',
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 30,
@@ -132,12 +132,14 @@ class _FinalViewState extends State<FinalView> {
                           Colors.green.withOpacity(.5)),
                     ),
                     onPressed: () async {
-                      if (id  == null) {
-                        await addItem();
+                      if (documentId  == null) {
+                        //await addItem();//local database function
+                        await addItemOnline();//firebase function
                       }
 
-                      if (id != null) {
-                        await updateItem(id);
+                      if (documentId != null) {
+                        //await updateItem(id);//local database function
+                        await updateItemOnline(documentId);//firebase function
                       }
 
                       _titleController.text = '';
@@ -146,7 +148,7 @@ class _FinalViewState extends State<FinalView> {
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     },
-                    child: Text(id == null ? 'Create New' : 'Update'),
+                    child: Text(documentId == null ? 'Create New' : 'Update'),
                   )
                 ],
               ),
@@ -162,6 +164,11 @@ class _FinalViewState extends State<FinalView> {
     await SQLHelper.createItem(_titleController.text, _descriptionController.text);
     refreshData();
   }
+  /// Firebase Add Task Function
+  Future<void> addItemOnline() async {
+    await _firebaseService.addTask(_titleController.text, _descriptionController.text);
+    refreshData();
+  }
 
   /// Update Task Function
   Future<void> updateItem(int id) async {
@@ -170,9 +177,43 @@ class _FinalViewState extends State<FinalView> {
     refreshData();
   }
 
+  /// Firebase Add Task Function
+  Future<void> updateItemOnline(String documentId) async {
+    await _firebaseService.updateTask(documentId, _titleController.text, _descriptionController.text);
+    refreshData();
+  }
+
   /// Delete
   void deleteItem(int id) async {
     await SQLHelper.deleteItem(id);
+    final snackBar = SnackBar(
+      elevation: 0,
+      behavior: SnackBarBehavior.fixed,
+      backgroundColor: Colors.transparent,
+      content: MaterialBanner(
+        elevation: 0,
+        backgroundColor: Colors.white.withOpacity(0.0),
+        content: AwesomeSnackbarContent(
+          inMaterialBanner: true,
+          title: 'Success!',
+          message: 'Successfully removed task',
+          contentType: ContentType.success,
+        ), actions: [
+        Container()
+      ],
+      ),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+
+    refreshData();
+  }
+
+  /// Firebase Delete task
+  void deleteItemOnline(String documentId) async {
+    await _firebaseService.deleteTask(documentId);
     final snackBar = SnackBar(
       elevation: 0,
       behavior: SnackBarBehavior.fixed,
@@ -235,7 +276,8 @@ class _FinalViewState extends State<FinalView> {
                     SlidableAction(
                       flex: 3,
                       onPressed: (_) =>
-                          deleteItem(allData[index]['id']),
+                          // deleteItem(allData[index]['id']),
+                      deleteItemOnline(allData[index]['documentId']),
                       foregroundColor: Colors.red,
                       icon: Icons.delete,
                       label: 'Remove',
@@ -256,7 +298,7 @@ class _FinalViewState extends State<FinalView> {
                           children: [
                             IconButton(
                               onPressed: () =>
-                                  showForm(allData[index]['id']),
+                                  showForm(allData[index]['documentId']),
                               icon: const Icon(
                                 Icons.edit,
                                 color: Colors.grey,
