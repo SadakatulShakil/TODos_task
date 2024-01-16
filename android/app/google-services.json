@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "879460817119",
-    "project_id": "todos-e2872",
-    "storage_bucket": "todos-e2872.appspot.com"
+    "project_number": "78221884421",
+    "project_id": "todos-fa13a",
+    "storage_bucket": "todos-fa13a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:879460817119:android:307442468bdafc6f24716a",
+        "mobilesdk_app_id": "1:78221884421:android:d9b4b0d0764a8bf10df06c",
         "android_client_info": {
           "package_name": "com.caretuitor.to_dos"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC8yqmNIoFU5E07mUDyBkAPX48aVtglypE"
+          "current_key": "AIzaSyCMzComVWU5plAj2FxxMBB5Wo1k2pix_AU"
         }
       ],
       "services": {
