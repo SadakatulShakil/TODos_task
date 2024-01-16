@@ -3,10 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:to_dos/database/firebase_service.dart';
 import 'package:to_dos/home/widget/appbar.dart';
 import 'package:to_dos/home/widget/drawer_content.dart';
 import 'package:to_dos/home/widget/emptylist.dart';
+import 'package:to_dos/home/widget/no_internet.dart';
 import 'package:to_dos/home/widget/topside.dart';
 import '../database/database_helper.dart';
 
@@ -26,13 +28,20 @@ class _FinalViewState extends State<FinalView> {
   bool isLoading = true;
 
   /// Refreshing Data After every User action
-  void refreshData() async {
-    final data = await SQLHelper.getItems();//local database function
-    final online_data = await _firebaseService.getTasks();
-    setState(() {
-      allData = online_data;
-      isLoading = false;
-    });
+  Future<void> refreshData() async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.none){
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NoInternetScreen()));
+    }else{
+      final data = await SQLHelper.getItems();//local database function
+      final online_data = await _firebaseService.getTasks();
+      setState(() {
+        allData = online_data;
+        isLoading = false;
+      });
+    }
   }
 
   /// Show Form for adding a new task / update task
@@ -166,8 +175,13 @@ class _FinalViewState extends State<FinalView> {
   }
   /// Firebase Add Task Function
   Future<void> addItemOnline() async {
-    await _firebaseService.addTask(_titleController.text, _descriptionController.text);
-    refreshData();
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.none){
+      refreshData();
+    }else{
+      await _firebaseService.addTask(_titleController.text, _descriptionController.text);
+      refreshData();
+    }
   }
 
   /// Update Task Function
@@ -179,8 +193,13 @@ class _FinalViewState extends State<FinalView> {
 
   /// Firebase Add Task Function
   Future<void> updateItemOnline(String documentId) async {
-    await _firebaseService.updateTask(documentId, _titleController.text, _descriptionController.text);
-    refreshData();
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.none){
+      refreshData();
+    }else{
+      await _firebaseService.updateTask(documentId, _titleController.text, _descriptionController.text);
+      refreshData();
+    }
   }
 
   /// Delete
@@ -213,30 +232,35 @@ class _FinalViewState extends State<FinalView> {
 
   /// Firebase Delete task
   void deleteItemOnline(String documentId) async {
-    await _firebaseService.deleteTask(documentId);
-    final snackBar = SnackBar(
-      elevation: 0,
-      behavior: SnackBarBehavior.fixed,
-      backgroundColor: Colors.transparent,
-      content: MaterialBanner(
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.none){
+      refreshData();
+    }else{
+      await _firebaseService.deleteTask(documentId);
+      final snackBar = SnackBar(
         elevation: 0,
-        backgroundColor: Colors.white.withOpacity(0.0),
-        content: AwesomeSnackbarContent(
-          inMaterialBanner: true,
-          title: 'Success!',
-          message: 'Successfully removed task',
-          contentType: ContentType.success,
-        ), actions: [
-        Container()
-      ],
-      ),
-    );
+        behavior: SnackBarBehavior.fixed,
+        backgroundColor: Colors.transparent,
+        content: MaterialBanner(
+          elevation: 0,
+          backgroundColor: Colors.white.withOpacity(0.0),
+          content: AwesomeSnackbarContent(
+            inMaterialBanner: true,
+            title: 'Success!',
+            message: 'Successfully removed task',
+            contentType: ContentType.success,
+          ), actions: [
+          Container()
+        ],
+        ),
+      );
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
 
-    refreshData();
+      refreshData();
+    }
   }
 
   @override
