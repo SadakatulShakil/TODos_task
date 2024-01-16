@@ -1,16 +1,8 @@
 # to_dos
 
-A new Flutter project.
+A new Flutter project for todo task implementation
 
-## Getting Started
+## How to use (Recording)
 
-This project is a starting point for a Flutter application.
+https://github.com/SadakatulShakil/TODos_task/assets/58100333/9d3f4c93-5a3c-4c01-95d6-f7a89689203a
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
