@@ -3,7 +3,7 @@
 A new Flutter project for todo task implementation
 
 ## How to use (Recording)
-[url=https://postimg.cc/McYX8QpZ][img]https://i.postimg.cc/McYX8QpZ/68747470733a2f2f692e706f7374696d672e63632f53787657584b39322f696d616765382e6a7067.jpg[/img][/url] [url=https://postimg.cc/hJnhwrg3][img]https://i.postimg.cc/hJnhwrg3/68747470733a2f2f692e706f7374696d672e63632f64313864536d78722f696d616765362e6a7067.jpg[/img][/url]
+![ScreenShot]([https://i.postimg.cc/LXdLT0Nm/image5.jpg](https://github.com/SadakatulShakil/Daily_task_management/assets/58100333/aab8dbb4-45c3-4689-9c7f-af95b91f7e83))  ![ScreenShot]([https://i.postimg.cc/d18dSmxr/image6.jpg](https://github.com/SadakatulShakil/Daily_task_management/assets/58100333/34c9e277-5d58-4f22-bb39-b7730afa4a8d)https://github.com/SadakatulShakil/Daily_task_management/assets/58100333/34c9e277-5d58-4f22-bb39-b7730afa4a8d)
 
 
 
