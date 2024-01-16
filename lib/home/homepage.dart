@@ -28,6 +28,8 @@ class _FinalViewState extends State<FinalView> {
   final FirebaseService _firebaseService = FirebaseService();
   List<Map<String, dynamic>> allData = [];
   bool isLoading = true;
+  List<bool> selectedItems = [];
+  bool isCompleted = false;
 
   /// Refreshing Data After every User action
   Future<void> refreshData() async {
@@ -43,6 +45,7 @@ class _FinalViewState extends State<FinalView> {
       setState(() {
         allData = online_data;
         isLoading = false;
+        selectedItems = List.generate(allData.length, (index) => false); // Initialize selectedItems here
       });
     }
   }
@@ -277,6 +280,23 @@ class _FinalViewState extends State<FinalView> {
     }
   }
 
+  void deleteSelectedItems() {
+    List<String> selectedDocumentIds = [];
+    for (int i = 0; i < selectedItems.length; i++) {
+      if (selectedItems[i]) {
+        selectedDocumentIds.add(allData[i]['documentId']);
+      }
+    }
+
+    for (String documentId in selectedDocumentIds) {
+      deleteItemOnline(documentId);
+    }
+
+    setState(() {
+      selectedItems = List.generate(allData.length, (index) => false);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -298,7 +318,7 @@ class _FinalViewState extends State<FinalView> {
           : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TopSideTitles(allData: allData),
+          TopSideTitles(allData: allData, selectedItems: selectedItems, onDeleteSelected: deleteSelectedItems),
           allData.isEmpty
               ? const Expanded(child: EmptyListState())
               : Expanded(
@@ -355,29 +375,62 @@ class _FinalViewState extends State<FinalView> {
                           shape: RoundedRectangleBorder(
                               borderRadius:
                               BorderRadius.circular(15)),
-                          color: Colors.deepPurpleAccent
-                              .withOpacity(0.5),
+                          color: selectedItems[index]?Colors.green
+                              .withOpacity(0.5):Colors.deepPurpleAccent
+                            .withOpacity(0.5),
                           margin: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 5),
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 bottom: 12, left: 12),
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                              mainAxisAlignment:
-                              MainAxisAlignment.end,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  allData[index]['title'],
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 30),
+                                Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      allData[index]['title'],
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 30),
+                                    ),
+                                    Text(
+                                      allData[index]['description'],
+                                      style: const TextStyle(
+                                          color: Colors.white),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  allData[index]['description'],
-                                  style: const TextStyle(
-                                      color: Colors.white),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        selectedItems[index] = !selectedItems[index];
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(shape: BoxShape.circle, color: selectedItems[index]?Colors.green:Colors.deepPurple),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: selectedItems[index]
+                                            ? Icon(
+                                          Icons.check,
+                                          size: 15.0,
+                                          color: Colors.white,
+                                        )
+                                            : Icon(
+                                          Icons.check_box_outline_blank,
+                                          size: 15.0,
+                                          color: selectedItems[index]?Colors.green:Colors.deepPurple,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
