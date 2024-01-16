@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:to_dos/Provider/provider_service.dart';
 import 'package:to_dos/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -17,12 +19,17 @@ void main() async{
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-          primarySwatch: Colors.green
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TodoProvider()),
+      ],
+      child: GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            primarySwatch: Colors.green
+        ),
+        home: WelcomeScreen(),
       ),
-      home: WelcomeScreen(),
     );
   }
 }

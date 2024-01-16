@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:to_dos/database/firebase_service.dart';
 import 'package:to_dos/home/widget/appbar.dart';
@@ -10,6 +11,7 @@ import 'package:to_dos/home/widget/drawer_content.dart';
 import 'package:to_dos/home/widget/emptylist.dart';
 import 'package:to_dos/home/widget/no_internet.dart';
 import 'package:to_dos/home/widget/topside.dart';
+import '../Provider/provider_service.dart';
 import '../database/database_helper.dart';
 
 
@@ -37,6 +39,7 @@ class _FinalViewState extends State<FinalView> {
     }else{
       final data = await SQLHelper.getItems();//local database function
       final online_data = await _firebaseService.getTasks();
+
       setState(() {
         allData = online_data;
         isLoading = false;
@@ -46,12 +49,15 @@ class _FinalViewState extends State<FinalView> {
 
   /// Show Form for adding a new task / update task
   void showForm(String? documentId) async {
+    var read = context.read<TodoProvider>();
     if (documentId != null) {
       // id != null -> update an existing item
       final existingJournal =
       allData.firstWhere((element) => element['documentId'] == documentId);
-      _titleController.text = existingJournal['title'];
-      _descriptionController.text = existingJournal['description'];
+      read.updateTitle(existingJournal['title']);
+      read.updateDescription(existingJournal['description']);
+      _titleController.text = read.nameOfTitle;
+      _descriptionController.text = read.nameOfDescription;
 
     }
     // id == null -> create new item
@@ -104,6 +110,7 @@ class _FinalViewState extends State<FinalView> {
                   ),
                   TextField(
                     controller: _titleController,
+                    onChanged: read.updateTitle,
                     decoration: InputDecoration(
                       labelText: 'Title',
                       prefixIcon: Icon(Icons.title),
@@ -118,6 +125,7 @@ class _FinalViewState extends State<FinalView> {
                   ),
                   TextField(
                     controller: _descriptionController,
+                    onChanged: read.updateDescription,
                     decoration: const InputDecoration(
                       labelText: 'Description',
                       prefixIcon: Icon(Icons.description),
@@ -179,7 +187,9 @@ class _FinalViewState extends State<FinalView> {
     if(connectivityResult == ConnectivityResult.none){
       refreshData();
     }else{
-      await _firebaseService.addTask(_titleController.text, _descriptionController.text);
+      var read = context.read<TodoProvider>();
+      read.addTask(read.nameOfTitle, read.nameOfDescription);
+      //await _firebaseService.addTask(_titleController.text, _descriptionController.text);
       refreshData();
     }
   }
@@ -197,7 +207,9 @@ class _FinalViewState extends State<FinalView> {
     if(connectivityResult == ConnectivityResult.none){
       refreshData();
     }else{
-      await _firebaseService.updateTask(documentId, _titleController.text, _descriptionController.text);
+      var read = context.read<TodoProvider>();
+      read.updateTask(documentId, read.nameOfTitle, read.nameOfDescription);
+      //await _firebaseService.updateTask(documentId, _titleController.text, _descriptionController.text);
       refreshData();
     }
   }
@@ -236,7 +248,9 @@ class _FinalViewState extends State<FinalView> {
     if(connectivityResult == ConnectivityResult.none){
       refreshData();
     }else{
-      await _firebaseService.deleteTask(documentId);
+      var read = context.read<TodoProvider>();
+      read.deleteTask(documentId);
+     // await _firebaseService.deleteTask(documentId);
       final snackBar = SnackBar(
         elevation: 0,
         behavior: SnackBarBehavior.fixed,
