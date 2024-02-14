@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:to_dos/home/homepage.dart';
 
+import 'Chat/chat_list_page.dart';
+
 class WelcomeScreen extends StatefulWidget {
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
@@ -28,9 +30,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       if(isFirstTime){
         _setFirstTime();
         Timer(Duration(seconds: 3), ()=>
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (Context)=>FinalView())));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (Context)=>ChatListPage(token: 'fhghghhghjhhgjhjgjhjhgjhgjhgjhgjgjg',))));
       }else{
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (Context)=>FinalView()));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (Context)=>ChatListPage(token: 'fhghghhghjhhgjhjgjhjhgjhgjhgjhgjgjg',)));
       }
     });
   }

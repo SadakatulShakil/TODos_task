@@ -50,6 +50,7 @@ dev_dependencies:
   shared_preferences: ^2.2.2
   firebase_core: ^2.24.2
   cloud_firestore: ^4.14.0
+  firebase_auth: ^4.16.0
   connectivity_plus: ^5.0.2
   provider: ^6.1.1
   # The "flutter_lints" package below contains a set of recommended lints to
